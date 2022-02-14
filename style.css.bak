@@ -1,0 +1,46 @@
+#pages-counter {
+	display: inline;
+	position: fixed;
+	bottom: 0;
+	background-color: white;
+	border-radius: 1em;
+	padding: 1em;
+}
+
+#pages-counter ul {
+	display: inline;
+	padding: 1em;
+}
+
+#pages-counter li {
+	display: inline;
+	padding: 0.15em;
+}
+
+#search-div {
+	position: fixed;
+	top: 0;
+	background-color: white;
+	border-radius: 1em;
+	padding: 1em;
+}
+
+#top-headlines {
+	padding-top: 2.5em;
+	padding-bottom: 1em;
+}
+
+#pages-counter .selected {
+	color: green;
+	font-size:1.3em;
+}
+
+.errorMessage {
+	text-align: center;
+	color: red;
+	position: absolute;
+    top: 30%;
+    left: 1%;
+    right: 1%;
+    margin: auto;
+}

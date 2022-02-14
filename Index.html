@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>NewsAPI / Top headlines</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+	<div id="search-div">
+		<label for="search-query">Pesquisa</label>
+		<input type="text" id="search-query"><br>
+		<label for="search-category">Tema</label>
+		<select id="search-category">
+			<option value="business">Négocios</option>
+			<option value="entertainment">Entretenimeto</option>
+			<option value="general" selected="selected">Em geral</option>
+			<option value="health">Saúde</option>
+			<option value="science">Ciência</option>
+			<option value="sports">Esportes</option>
+			<option value="technology">Tecnologia</option>
+		</select>
+	</div>
+	<div id="top-headlines">
+	
+	</div>
+	<div id="pages-counter">
+		<a class="previous">menos</a>
+		<ul class="page-numbers">
+		
+		</ul>
+		<a class="next">mais</a>
+	</div>
+	<script>
+		const params = {
+			language: 'pt',
+			country: 'br',
+			pageSize: 5,
+			page: 1,
+			get category() {
+				return document.getElementById("search-category").value;
+			},
+			get q() {
+				return document.getElementById("search-query").value;
+			},
+		}
+		
+		function main(partialParams) {
+			for(param in partialParams)
+				params[param] = partialParams[param];
+			request(params).then(topHeadlinesFiller).catch(errorHandler);
+			pagesCounterFiller(params.page);
+		}
+	
+		function request(params) {
+			var url = new URL("http://127.0.0.1:3000/");
+			url.search = new URLSearchParams(params);
+			
+			return fetch(url)
+			.then(resolve => resolve.json())
+			.then(json => {
+				if (json.status == "ok")
+					return json
+				else throw json
+			})
+		}
+		
+		function topHeadlinesFiller(json) {
+			let topHeadlines = document.getElementById("top-headlines");
+			topHeadlines.innerHTML = "";
+			json.articles.forEach(article => {
+				let headline = document.createElement("div");
+				topHeadlines.appendChild(headline);
+				headline.classList.add("headLine")
+				
+				let url = document.createElement("a");
+				headline.appendChild(url);
+				url.href = article.url;
+				url.classList.add("url")
+				
+				let title = document.createElement("h1");
+				url.appendChild(title);
+				title.innerHTML = article.title;
+				title.classList.add("title")
+				
+				let description = document.createElement("h2");
+				headline.appendChild(description);
+				description.innerHTML = article.description;
+				description.classList.add("description")
+				
+				let content = document.createElement("h3");
+				headline.appendChild(content);
+				content.innerHTML = article.content;
+				content.classList.add("content")
+				
+				let br = document.createElement("br");
+				topHeadlines.appendChild(br);
+			})
+		}
+		
+		function errorHandler(error) {
+			let topHeadlines = document.getElementById("top-headlines");
+			topHeadlines.innerHTML = "";
+			errorElement = document.createElement("h1");
+			topHeadlines.appendChild(errorElement);
+			errorElement.innerHTML = "Desculpe, ouve um erro na nossa aplicação. Contate o suporte.<br>P.S. Se você for um Dev o erro tá printado no console";
+			errorElement.classList.add("errorMessage");
+			console.log(error);
+		}
+		
+		function pagesCounterFiller(page) {
+			let pagesCounter = document.getElementById("pages-counter");
+			let pageNumbers = pagesCounter.getElementsByClassName("page-numbers")[0];
+			
+			let pageNumber = pageNumbers.getElementsByClassName(page)[0];
+			if (!pageNumber) {
+				pageNumber = document.createElement("li");
+				pageNumbers.appendChild(pageNumber);
+				pageNumber.innerHTML = page;
+				pageNumber.className = page;
+				pageNumber.onclick = function(e) {
+					main({page});
+				}
+			}
+			
+			let previousSelected = pageNumbers.getElementsByClassName("selected")[0];
+			if (previousSelected) previousSelected.classList.remove("selected");
+			pageNumber.classList.add("selected");
+		}
+		
+		main();
+		
+		const searchQuery = document.getElementById("search-query");
+		const searchCategory = document.getElementById("search-category");
+		searchQuery.addEventListener("keyup", function(e) {
+			if (event.key === "Enter") main({page:1});
+		})
+		searchCategory.addEventListener("change", e => main({page:1}));
+		
+		const pagesCounter = document.getElementById("pages-counter");
+		var previous = pagesCounter.getElementsByClassName("previous")[0];
+		var next = pagesCounter.getElementsByClassName("next")[0];
+		previous.onclick = function(e) {
+			if (params.page > 1) {
+				main({page:params.page-1});
+			}
+		}
+		next.onclick = function(e) {
+			main({page:+params.page+1})
+		}
+		
+	</script>
+  </body>
+</html>
